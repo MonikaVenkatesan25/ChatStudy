@@ -77,32 +77,24 @@ Client-server chat applications are foundational to real-time communication over
 ```
 Client:
 import socket
+from datetime import datetime
 
-# Create socket
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s = socket.socket()
+s.bind(('localhost', 8000))
+s.listen(5)
 
-host = "127.0.0.1"
-port = 12345
+c, addr = s.accept()
+print("Client Address : ", addr)
 
-# Connect to server
-client.connect((host, port))
+now = datetime.now()
+c.send(now.strftime("%d/%m/%Y %H:%M:%S").encode())
 
-while True:
-    # Send message to server
-    msg = input("Client: ")
-    client.send(msg.encode())
+ack = c.recv(1024).decode()
+if ack:
+    print(ack)
 
-    if msg.lower() == "exit":
-        break
+c.close()
 
-    # Receive reply from server
-    server_msg = client.recv(1024).decode()
-    print("Server:", server_msg)
-
-    if server_msg.lower() == "exit":
-        break
-
-client.close()
 
 
 
@@ -111,45 +103,22 @@ client.close()
 Server:
 import socket
 
-# Create socket
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s = socket.socket()
+s.connect(('localhost', 8000))
 
-host = "127.0.0.1"
-port = 12345
+print(s.getsockname())
+print(s.recv(1024).decode())
 
-# Bind and listen
-server.bind((host, port))
-server.listen(1)
+s.send("acknowledgement recived from the server".encode())
 
-print("Server waiting for connection...")
-
-conn, addr = server.accept()
-print("Connected to:", addr)
-
-while True:
-    # Receive message from client
-    client_msg = conn.recv(1024).decode()
-    print("Client:", client_msg)
-
-    if client_msg.lower() == "exit":
-        break
-
-    # Send message to client
-    msg = input("Server: ")
-    conn.send(msg.encode())
-
-    if msg.lower() == "exit":
-        break
-
-conn.close()
-server.close()
 
 
 
 
 ```
 ## Output:
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/7adbac52-179b-40b8-b677-7bec0e51eafe" />
+![Uploading image.png…]()
+
 
 ## Result:
 
